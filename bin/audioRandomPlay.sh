@@ -21,11 +21,11 @@ do
    is_audio=$(echo "$file" | perl -e "while(<>) { if ( m/(mp3|ape|flac|m4a)$/i) {print "1";} else {print "0"} }")
    if [ $is_audio -eq 1 -a -f "$file" ]; then
       if [ $song_index -eq 0 ]; then
-         echo "Play song $file ..."
+         echo "Playing song $file ..."
          audacious "$file" > /dev/null 2>&1 &
          sleep 1 # Give audacious some time to start up
       else
-         echo "Add song $file ..."
+         echo "Adding song $file ..."
          audacious -e "$file" &
       fi
       cd $audio_dir
