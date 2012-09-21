@@ -23,7 +23,7 @@ do
       if [ $song_index -eq 0 ]; then
          echo "Playing song $file ..."
          audacious "$file" > /dev/null 2>&1 &
-         sleep 2 # Give audacious some time to start up
+         sleep 1 # Give audacious some time to start up
       else
          echo "Adding song $file ..."
          audacious -e "$file" &
