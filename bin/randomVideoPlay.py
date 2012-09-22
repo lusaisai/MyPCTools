@@ -37,10 +37,11 @@ class randomVideoPlay(object):
                 
     # Play the File
     def play(self, videoFile):
-        command = self.videoPlayer + " '" + videoFile + "' &"
-        blackHole = open('/dev/null')
+        command = [ self.videoPlayer, videoFile ]
+        #blackHole = open('/dev/null')
         print "Now playing %s ..." % videoFile
-        subprocess.call(command, stdout = blackHole, stderr = blackHole, shell=True )
+        #subprocess.Popen( command, stdout = blackHole, stderr = blackHole )
+        subprocess.Popen( command )
         
 
 videoDir = '/home/lusaisai/Videos'
