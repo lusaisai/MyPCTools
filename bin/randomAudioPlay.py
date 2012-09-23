@@ -22,28 +22,42 @@ class randomAudioPlay(object):
         
     def usage(self):
         print "Randomly choose 15 songs by default."
-        print "You can also use it like, %s [number of songs] [search pattern]" % os.path.basename(args[0])
+        print "You can also use it like, %s [number of songs] [search pattern]..." % os.path.basename(args[0])
         print "For example, %s 30 '品冠'" % os.path.basename(args[0])
         print "For example, %s 30" % os.path.basename(args[0])
         print "For example, %s '品冠'" % os.path.basename(args[0])
+        print "For example, %s 30 '品冠' '梁静茹'" % os.path.basename(args[0])
+        print "For example, %s '品冠' '梁静茹'" % os.path.basename(args[0])
         
-    def isInteger(self,number):
+    def setQuery(self, songNum, searchPattern):
+        queryHead = 'select * from music '
+        queryFoot = ' order by random() limit %s;' % songNum
         try:
-            int(number)
-            return True
+            if len(searchPattern) >= 2:
+                searchPattern.remove('')
         except ValueError:
-            return False
+            pass
+        patterns = list(enumerate(searchPattern))
+        for pattern in patterns:
+            if pattern[0] == 0:
+                query = queryHead + " where full_path like '%%%s%%' " % pattern[1]
+            else:
+                query = query + " or full_path like '%%%s%%' " % pattern[1]
+        query = query + queryFoot
+        return query
+        
         
     def getSongs(self, songNum, songPattern):
         # for ease of use, if the first argument is not an integer, treat it like pattern
-        if self.isInteger(songNum):
+        if songNum.isdigit():
             pass
         else:
-            [ songNum, songPattern ] = [ 15, songNum ]
-           
+            songPattern.append(songNum)
+            songNum = 15
+        
         con = sqlite3.connect(self.dbFile)
         cur = con.cursor()
-        cur.execute("select * from music where full_path like '%%%s%%' order by random() limit %s; " % (songPattern, songNum))
+        cur.execute(self.setQuery(songNum, songPattern))
         songs = [cols[0] for cols in cur.fetchall()]
         cur.close()
         return songs
@@ -57,16 +71,18 @@ class randomAudioPlay(object):
 dbFile = "/home/lusaisai/MyPCTools/files/allMusic.db"
 player = "audacious"
 myPlay = randomAudioPlay(dbFile,player)
-songNum = 15
-songPattern = ''
+songNum = '15'
+songPattern = ['']
 args = sys.argv
 argsNum = len(args)
 
-if argsNum == 2:
-    songNum = args[1]
-elif argsNum == 3:
-    [ songNum, songPattern ] = args[1:]
-else:
+if argsNum == 1:
     myPlay.usage()
+
+if argsNum >= 2:
+    songNum = args[1]
+
+if argsNum >= 3:
+    songPattern = args[2:] 
 
 myPlay.play(myPlay.getSongs(songNum, songPattern ))
