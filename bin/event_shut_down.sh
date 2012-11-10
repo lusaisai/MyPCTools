@@ -18,7 +18,7 @@ fi
 # initializtion
 pid=$1
 pdir=/proc/$pid
-wait_time=1   # 1 minute before shutting down
+WAIT_TIME=1   # 1 minute before shutting down
 
 # Test if the process id exists or not
 if [ ! -d $pdir ]; then
@@ -34,5 +34,6 @@ do
 done
 
 # shut down the system
-shutdown -P +1
+echo "Shut down the system in $WAIT_TIME minute(s) ..."
+shutdown -P +$WAIT_TIME
 
