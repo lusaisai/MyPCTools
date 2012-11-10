@@ -11,6 +11,7 @@ import os
 import random
 import re
 import subprocess
+import sys
 
 class randomVideoPlay(object):
     def __init__(self, directory, player):
@@ -26,7 +27,11 @@ class randomVideoPlay(object):
         allFiles = os.listdir(topDir)
         retryTimes = len(allFiles)/2 + 1
         for i in range(retryTimes):
-            videoFile = random.choice(allFiles)
+            try:    
+                videoFile = random.choice(allFiles)
+            except IndexError:
+                print "No video files found!"
+                sys.exit(1)
             if re.match(self.pattern, videoFile, re.IGNORECASE ):
                 return videoFile
             elif os.path.isdir(videoFile):
