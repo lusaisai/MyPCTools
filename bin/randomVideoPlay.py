@@ -19,15 +19,17 @@ class randomVideoPlay(object):
         self.videoPlayer = player
         self.videoSfx = [ 'avi', 'mp4', 'rm', 'rmvb', 'wmv', 'iso', 'mkv', 'mpg', 'mpeg', 'vob', 'mov' ]
         self.pattern = '.*(' + '|'.join(self.videoSfx) + ')$'
-    
-    # Find the file randomly    
+
+    # Find the file randomly
     def find(self, topDir):
         print "Change directory into %s" % topDir
         os.chdir(topDir)
         allFiles = os.listdir(topDir)
-        retryTimes = len(allFiles)/2 + 1
+        # print len(allFiles);
+        # retryTimes = len(allFiles)/2 + 1
+        retryTimes = 10
         for i in range(retryTimes):
-            try:    
+            try:
                 videoFile = random.choice(allFiles)
             except IndexError:
                 print "No video files found!"
@@ -39,7 +41,7 @@ class randomVideoPlay(object):
             else:
                 pass
         return self.find(self.videoDir)
-                
+
     # Play the File
     def play(self, videoFile):
         command = [ self.videoPlayer, videoFile ]
@@ -47,7 +49,7 @@ class randomVideoPlay(object):
         print "Now playing %s ..." % videoFile
         subprocess.Popen( command, stdout = blackHole, stderr = blackHole )
         #subprocess.Popen( command )
-        
+
 
 videoDir = '/home/lusaisai/Videos'
 player = 'vlc'

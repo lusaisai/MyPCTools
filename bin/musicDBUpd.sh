@@ -5,7 +5,7 @@ topDir="/home/lusaisai/MyPCTools"
 dbFile="$topDir/files/allMusic.db"
 tmpDir="$topDir/tmp"
 musicFile="$tmpDir/musics.txt"
-musicDir="/media/Collection/Music"
+musicDir="/media/lusaisai/Collection/Music"
 
 # Generate the file to load
 find $musicDir | perl -e "while(<>) { if ( m/\.(mp3|ape|flac|m4a)$/i) {print $_;}}" > $musicFile

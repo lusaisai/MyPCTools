@@ -1,30 +1,73 @@
 #! /bin/bash -e
+ 
+#######################################################################################
+# Variables initializtion
+#######################################################################################
+topDir="/home/lusaisai/MyPCTools"
+dbFile="$topDir/files/allVideo.db"
+tmpDir="$topDir/tmp"
+videoFile="$tmpDir/videos.txt"
+videoDir="/home/lusaisai/Videos"
+ 
+ 
+#######################################################################################
+# several functions
+#######################################################################################
+# Update database
+function dbUpdate {
+   find $videoDir | perl -e "while(<>) { if ( m/\.(avi|mp4|rm|rmvb|wmv|iso|mkv|mpg|mpeg|vob|mov)$/i) {print $_;}}" > $videoFile
+ 
+   sqlite3 $dbFile << EOF
+create table if not exists video ( full_path text primary key, play_times integer default 0 );
+create table if not exists stage ( full_path text primary key);
+drop table if exists video_old;
+drop table if exists video_new;
+create table video_new ( full_path text primary key, play_times integer default 0 );
+delete from stage;
+.import $videoFile stage
+insert into video_new
+select s.full_path, coalesce(v.play_times, 0)
+from stage s
+left join video v
+on s.full_path = v.full_path;
+alter table video rename to video_old;
+alter table video_new rename to video;
+EOF
+ 
+   rm -f $videoFile
+}
+ 
+# randomly choose a file from those less played before
+function getFile {
+   sqlite3 $dbFile << EOF
+select full_path
+from video v
+join ( select min(play_times) as times from video ) m
+on   v.play_times = m.times
+order by random() limit 1;
+EOF
+}
+ 
+# add the play times with 1
+function timesUpdate {
+   sqlite3 $dbFile << EOF
+update video
+set play_times = play_times + 1
+where full_path = '$file';
+EOF
+}
+ 
+#######################################################################################
+# The main process
+#######################################################################################
+if [ $# -gt 0 ]; then
+   echo "Updating database ..."
+   dbUpdate
+fi
+file=$(getFile)
+echo "Playing $file ..."
+vlc "$file" > /dev/null 2>&1 &
+timesUpdate
+ 
+exit 0
 
-video_dir=~/Videos
-cd $video_dir
-retry_times=10
-
-i=0
-while true
-do
-   if [ $i -gt $retry_times ]; then
-      cd $video_dir
-      i=0
-   else
-      ((i += 1))
-   fi
-   file_cnt=$(ls -1 | wc -l)
-   random_num=$((RANDOM % file_cnt + 1))
-   file="$( ls -1 | sed ''$random_num' !d' )"
-   is_video=$(echo "$file" | perl -e "while(<>) { if ( m/(avi|mp4|rm|rmvb|wmv|iso|mkv)$/i) {print "1";} else {print "0"} }")
-   if [ $is_video -eq 1 ]; then
-      echo "Now playing $file ..."
-      vlc "$file" > /dev/null 2>&1 &
-      exit 0
-   elif [ -d "$file" ]; then
-      echo "Go into dir $file ..."
-      cd "$file"
-   else
-      continue
-   fi
-done
