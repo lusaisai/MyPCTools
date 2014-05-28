@@ -31,7 +31,7 @@ fi
 # other parameters
 TARGET_CODEC=${2:-webm}
 TARGET_DIR=/mnt/ent
-TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\..*/\./' `$TARGET_CODEC"
+TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\.[^.]*$/\./' `$TARGET_CODEC"
 
 
 # detect input file info
@@ -47,7 +47,7 @@ fi
 
 # convert
 info "Converting, it will take some time, please wait ..."
-avconv -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
+ffmpeg -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
 
 if [[ $? == 0 ]]; then
 	success "Finished converting, please check file $TARGET_FILE"
