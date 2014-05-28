@@ -47,7 +47,7 @@ fi
 
 # convert
 info "Converting, it will take some time, please wait ..."
-avconv -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" "$TARGET_FILE"
+avconv -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
 
 if [[ $? == 0 ]]; then
 	success "Finished converting, please check file $TARGET_FILE"
