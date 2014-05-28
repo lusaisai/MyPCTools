@@ -27,7 +27,7 @@ end
 
 abort "#{__FILE__} <Video Directory>" if ARGV.length != 1
 
-player = "vlc"
+player = "smplayer"
 videoDir = ARGV[0]
 
 vrp = VideoRandomPlay.new( player, videoDir )

@@ -68,7 +68,7 @@ class randomAudioPlay(object):
         command.insert(0, self.audioPlayer)
         subprocess.Popen( command, stdout=blackHole, stderr=blackHole )
         
-dbFile = "/home/lusaisai/MyPCTools/files/allMusic.db"
+dbFile = "/home/lusaisai/projects/MyPCTools/files/allMusic.db"
 player = "audacious"
 myPlay = randomAudioPlay(dbFile,player)
 songNum = '15'

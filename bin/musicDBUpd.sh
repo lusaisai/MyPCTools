@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # Variables initializtion
-topDir="/home/lusaisai/MyPCTools"
+topDir="/home/lusaisai/projects/MyPCTools"
 dbFile="$topDir/files/allMusic.db"
 tmpDir="$topDir/tmp"
 musicFile="$tmpDir/musics.txt"
-musicDir="/media/lusaisai/Collection/Music"
+musicDir="/mnt/ent/Music"
 
 # Generate the file to load
 find $musicDir | perl -e "while(<>) { if ( m/\.(mp3|ape|flac|m4a)$/i) {print $_;}}" > $musicFile
