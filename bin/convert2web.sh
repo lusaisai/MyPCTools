@@ -41,9 +41,20 @@ VIDEO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Video/ !d' \
 AUDIO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Audio/ !d' \
 	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/kb\/s/, "", $i); print $i;}  } }'`
 
-if [[ -z $VIDEO_RATE || -z $AUDIO_RATE ]]; then
-	error "Cannot get the bitrate info from the file"
+if [[ -z $VIDEO_RATE  ]]; then
+	error "Cannot get the video bitrate info from the file"
+	info "Please let me know the video bitrate"
+	printf '> '
+	read VIDEO_RATE
 fi
+
+if [[ -z $AUDIO_RATE  ]]; then
+	error "Cannot get the audio bitrate info from the file"
+	info "Please let me know the audio bitrate"
+	printf '> '
+	read AUDIO_RATE
+fi
+
 
 # convert
 info "Converting, it will take some time, please wait ..."
