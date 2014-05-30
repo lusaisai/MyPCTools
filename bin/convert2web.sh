@@ -36,17 +36,12 @@ TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\.[^.]*$/\./' `$TARGET_C
 
 # detect input file info
 info "Detecting the file ..."
+TOTAL_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Duration/ !d' \
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); gsub(/bitrate: /, "", $i); print $i;}  } }'`
 VIDEO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Video/ !d' \
-	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/kb\/s/, "", $i); print $i;}  } }'`
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
 AUDIO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Audio/ !d' \
-	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/kb\/s/, "", $i); print $i;}  } }'`
-
-if [[ -z $VIDEO_RATE  ]]; then
-	error "Cannot get the video bitrate info from the file"
-	info "Please let me know the video bitrate"
-	printf '> '
-	read VIDEO_RATE
-fi
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
 
 if [[ -z $AUDIO_RATE  ]]; then
 	error "Cannot get the audio bitrate info from the file"
@@ -56,9 +51,20 @@ if [[ -z $AUDIO_RATE  ]]; then
 fi
 
 
+if [[ -z $VIDEO_RATE  ]]; then
+	if [[ ! -z $TOTAL_RATE ]]; then
+		VIDEO_RATE=$(( TOTAL_RATE - AUDIO_RATE ))
+	else
+		error "Cannot get the video bitrate info from the file"
+		info "Please let me know the video bitrate"
+		printf '> '
+		read VIDEO_RATE
+	fi
+fi
+
 # convert
 info "Converting, it will take some time, please wait ..."
-ffmpeg -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
+time ffmpeg -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
 
 if [[ $? == 0 ]]; then
 	success "Finished converting, please check file $TARGET_FILE"
