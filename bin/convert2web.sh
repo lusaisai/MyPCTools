@@ -36,11 +36,11 @@ TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\.[^.]*$/\./' `$TARGET_C
 
 # detect input file info
 info "Detecting the file ..."
-TOTAL_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Duration/ !d' \
+TOTAL_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Duration/ !d' \
 	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); gsub(/bitrate: /, "", $i); print $i;}  } }'`
-VIDEO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Video/ !d' \
+VIDEO_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Video/ !d' \
 	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
-AUDIO_RATE=`avprobe $INPUT_FILE 2>&1 | sed '/Audio/ !d' \
+AUDIO_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Audio/ !d' \
 	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
 
 if [[ -z $AUDIO_RATE  ]]; then
