@@ -33,15 +33,14 @@ TARGET_CODEC=${2:-webm}
 TARGET_DIR=/mnt/ent
 TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\.[^.]*$/\./' `$TARGET_CODEC"
 
-
 # detect input file info
 info "Detecting the file ..."
 TOTAL_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Duration/ !d' \
-	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); gsub(/bitrate: /, "", $i); print $i;}  } }'`
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/[^0-9]+/, "", $i); print $i;}  } }'`
 VIDEO_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Video/ !d' \
-	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/[^0-9]+/, "", $i); print $i;}  } }'`
 AUDIO_RATE=`ffprobe $INPUT_FILE 2>&1 | sed '/Audio/ !d' \
-	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/ kb\/s/, "", $i); print $i;}  } }'`
+	|  awk -F"," '{ for(i = 1; i <= NF; i++) { if( $i ~ /kb\/s/ ) {gsub(/[^0-9]+/, "", $i); print $i;}  } }'`
 
 if [[ -z $AUDIO_RATE  ]]; then
 	error "Cannot get the audio bitrate info from the file"
@@ -49,7 +48,6 @@ if [[ -z $AUDIO_RATE  ]]; then
 	printf '> '
 	read AUDIO_RATE
 fi
-
 
 if [[ -z $VIDEO_RATE  ]]; then
 	if [[ ! -z $TOTAL_RATE ]]; then
@@ -62,7 +60,6 @@ if [[ -z $VIDEO_RATE  ]]; then
 	fi
 fi
 
-# convert
 info "Converting, it will take some time, please wait ..."
 time ffmpeg -i "$INPUT_FILE" -b:v "${VIDEO_RATE}k" -b:a "${AUDIO_RATE}k" -threads `nproc` "$TARGET_FILE"
 
