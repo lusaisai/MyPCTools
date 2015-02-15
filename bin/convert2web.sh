@@ -29,7 +29,7 @@ if [[ ! -f $INPUT_FILE ]]; then
 fi
 
 # other parameters
-TARGET_CODEC=${2:-webm}
+TARGET_CODEC=${2:-mp4}
 TARGET_DIR=/mnt/ent
 TARGET_FILE=$TARGET_DIR/"`basename $INPUT_FILE | sed 's/\.[^.]*$/\./' `$TARGET_CODEC"
 
